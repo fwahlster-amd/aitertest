@@ -19,7 +19,8 @@ ENV PATH="/opt/aiterenv/bin:$PATH"
 #RUN source /opt/aiterenv/bin/activate
 RUN pip install torch --index-url https://download.pytorch.org/whl/rocm6.0
 RUN pip install packaging
-RUN python3 ./aiter/setup.py develop
+
+#RUN python3 aiter/setup.py develop
 
 # Init aiter 
 #CMD ["python3", "./aiter/setup.py", "develop"]

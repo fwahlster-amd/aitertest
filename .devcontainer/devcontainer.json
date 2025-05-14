@@ -16,6 +16,8 @@
 		"--group-add", "video",
 		"--ipc=host"
 	],
+	// https://stackoverflow.com/questions/77293917/how-to-mount-source-code-in-a-devcontainer-at-build-time
+	"onCreateCommand": "python3 aiter/setup.py develop",
 	"customizations": {
 		"vscode": {
 			"extensions": [
