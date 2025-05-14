@@ -1,0 +1,26 @@
+{
+	"name": "aiter",
+	 // docker build -t fwahlste-coolname path-to-dockerfile
+	// "image": "fwahlste-coolname",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"workspaceFolder": "/workspace",
+  	"workspaceMount": "source=/home/fwahlste/projects/aitertest,target=/workspace,type=bind,consistency=cached",
+	// https://rocm.docs.amd.com/projects/install-on-linux/en/latest/how-to/docker.html#accessing-gpus-in-containers
+	"runArgs": [
+		"--name=fwahlste-aitertestcontainer", // give it a explicit name to be able to remove the container easier
+		"--device=/dev/kfd",
+		"--device=/dev/dri",
+		"--security-opt", "seccomp=unconfined",
+		"--group-add", "video",
+		"--ipc=host"
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode-remote.vscode-remote-extensionpack"
+			]
+		}
+	}
+}
