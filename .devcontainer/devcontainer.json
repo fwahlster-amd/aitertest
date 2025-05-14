@@ -17,8 +17,8 @@
 		"--ipc=host"
 	],
 	// https://stackoverflow.com/questions/77293917/how-to-mount-source-code-in-a-devcontainer-at-build-time
-	"onCreateCommand": "cd aiter && python3 setup.py develop", 
-	//"onCreateCommand": "cd aiter && pip install -r requirements.txt && python3 setup.py develop", 
+	//"onCreateCommand": "cd aiter && python3 setup.py develop", 
+	"onCreateCommand": "cd aiter && pip install -r requirements.txt && python3 setup.py develop", 
 	//"onCreateCommand": "python3 aiter/setup.py develop", // setup.py is buggy and can't be called from other paths
 	"customizations": {
 		"vscode": {

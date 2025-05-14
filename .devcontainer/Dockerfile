@@ -22,8 +22,8 @@ RUN pip install torch --index-url https://download.pytorch.org/whl/rocm6.0
 RUN pip install packaging 
 #RUN pip install psutil
 
-COPY requirements.txt .
-RUN pip install -r requirements.txt 
+#COPY aiter/requirements.txt .
+#RUN pip install -r requirements.txt 
 
 #RUN --mount=type=bind,source=/,target=/workspace/ pip install -r requirements.txt
 
