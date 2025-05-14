@@ -17,13 +17,17 @@ RUN apt-get update && apt-get install -y \
 RUN python3 -m venv /opt/aiterenv
 ENV PATH="/opt/aiterenv/bin:$PATH"
 #RUN source /opt/aiterenv/bin/activate
+# missing from requirements.txt
 RUN pip install torch --index-url https://download.pytorch.org/whl/rocm6.0
-RUN pip install packaging
+RUN pip install packaging 
+#RUN pip install psutil
 
-#RUN python3 aiter/setup.py develop
+COPY requirements.txt .
+RUN pip install -r requirements.txt 
 
-# Init aiter 
-#CMD ["python3", "./aiter/setup.py", "develop"]
+#RUN --mount=type=bind,source=/,target=/workspace/ pip install -r requirements.txt
+
+# ModuleNotFoundError: No module named 'aiter.jit.module_aiter_enum'
 
 # Switch to non-root user
 # USER aiter
