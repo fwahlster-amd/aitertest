@@ -15,20 +15,15 @@ RUN apt-get update && apt-get install -y \
     ninja-build \
     python3-venv
 
+RUN git clone --recursive https://github.com/ROCm/aiter.git /workspace
+
 RUN python3 -m venv /opt/aiterenv
 ENV PATH="/opt/aiterenv/bin:$PATH"
-#RUN source /opt/aiterenv/bin/activate
+
 # missing from requirements.txt
 #RUN pip install torch --index-url https://download.pytorch.org/whl/rocm6.0
 #RUN pip install packaging 
 #RUN pip install psutil
-
-#COPY aiter/requirements.txt .
-#RUN pip install -r requirements.txt 
-
-#RUN --mount=type=bind,source=/,target=/workspace/ pip install -r requirements.txt
-
-# ModuleNotFoundError: No module named 'aiter.jit.module_aiter_enum'
 
 # Switch to non-root user
 # USER aiter
