@@ -15,10 +15,12 @@ RUN apt-get update && apt-get install -y \
     ninja-build \
     python3-venv
 
-RUN git clone --recursive https://github.com/ROCm/aiter.git /workspace
-
 RUN python3 -m venv /opt/aiterenv
 ENV PATH="/opt/aiterenv/bin:$PATH"
+
+#RUN git clone --recursive https://github.com/ROCm/aiter.git /workspace/aiter
+
+#WORKDIR /workspace/aiter
 
 # missing from requirements.txt
 #RUN pip install torch --index-url https://download.pytorch.org/whl/rocm6.0
