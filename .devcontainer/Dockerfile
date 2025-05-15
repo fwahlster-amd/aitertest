@@ -19,8 +19,8 @@ RUN python3 -m venv /opt/aiterenv
 ENV PATH="/opt/aiterenv/bin:$PATH"
 #RUN source /opt/aiterenv/bin/activate
 # missing from requirements.txt
-RUN pip install torch --index-url https://download.pytorch.org/whl/rocm6.0
-RUN pip install packaging 
+#RUN pip install torch --index-url https://download.pytorch.org/whl/rocm6.0
+#RUN pip install packaging 
 #RUN pip install psutil
 
 #COPY aiter/requirements.txt .
