@@ -12,6 +12,7 @@ SHELL ["/bin/bash", "-c"]
 RUN apt-get update && apt-get install -y \
     git \
     cmake \
+    ninja-build \
     python3-venv
 
 RUN python3 -m venv /opt/aiterenv
