@@ -1,0 +1,27 @@
+{
+    // # https://github.com/microsoft/vscode-cmake-tools/blob/main/docs/debug-launch.md#debug-using-a-launchjson-file
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "rocgdb",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${command:cmake.launchTargetPath}",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/rocgdb",
+        },
+        {
+            "name": "pydbg",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "python": "/opt/aiterenv/bin/python3",
+            "args": []
+        },
+    ]
+}

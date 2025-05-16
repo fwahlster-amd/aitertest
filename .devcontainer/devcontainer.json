@@ -23,7 +23,10 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"ms-vscode-remote.vscode-remote-extensionpack"
+				"ms-vscode-remote.vscode-remote-extensionpack",
+				"ms-vscode.cpptools-extension-pack",
+				"ms-python.python",
+				"ms-python.debugpy"
 			]
 		}
 	}
