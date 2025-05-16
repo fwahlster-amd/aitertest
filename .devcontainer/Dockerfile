@@ -20,8 +20,10 @@ ENV PATH="/opt/aiterenv/bin:$PATH"
 
 RUN git config --global --add safe.directory /workspace/aiter
 #RUN git clone --recursive https://github.com/ROCm/aiter.git /workspace/aiter
-
 #WORKDIR /workspace/aiter
+
+#if running on gfx950 node
+#ENV GPU_ARCHS=gfx950
 
 # missing from requirements.txt
 #RUN pip install torch --index-url https://download.pytorch.org/whl/rocm6.0
@@ -29,9 +31,6 @@ RUN pip install torch --index-url https://download.pytorch.org/whl/nightly/rocm6
 RUN pip install packaging
 RUN pip install pyyaml 
 #RUN pip install psutil
-
-#if running on gfx950 node
-#ENV GPU_ARCHS=gfx950
 
 # Switch to non-root user
 # USER aiter
