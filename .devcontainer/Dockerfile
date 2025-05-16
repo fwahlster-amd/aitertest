@@ -26,8 +26,12 @@ RUN git config --global --add safe.directory /workspace/aiter
 # missing from requirements.txt
 #RUN pip install torch --index-url https://download.pytorch.org/whl/rocm6.0
 RUN pip install torch --index-url https://download.pytorch.org/whl/nightly/rocm6.4
-RUN pip install packaging 
+RUN pip install packaging
+RUN pip install pyyaml 
 #RUN pip install psutil
+
+#if running on gfx950 node
+#ENV GPU_ARCHS=gfx950
 
 # Switch to non-root user
 # USER aiter
