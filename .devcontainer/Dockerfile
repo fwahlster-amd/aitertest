@@ -20,8 +20,8 @@ RUN apt-get update && apt-get install -y \
 #ENV PATH="/opt/aiterenv/bin:$PATH"
 
 RUN git config --global --add safe.directory /workspace/aiter
+RUN git config --global --add safe.directory /workspace/aiter/3rdparty/composable_kernel
 #RUN git clone --recursive https://github.com/ROCm/aiter.git /workspace/aiter
-#WORKDIR /workspace/aiter
 
 #if running on gfx950 node
 #ENV GPU_ARCHS=gfx950

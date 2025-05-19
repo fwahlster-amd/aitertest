@@ -25,13 +25,7 @@ if os.path.exists(jit_dir) and os.path.isdir(jit_dir):
 
 
 sys.path.insert(0, f"{this_dir}/aiter/aiter")
-#import aiter
-
 from jit import core
-# from jit.utils.cpp_extension import (
-#     BuildExtension,
-#     IS_HIP_EXTENSION,
-# )
 
 exclude_ops = ["libmha_fwd", "libmha_bwd"]
 all_opts_args_build = core.get_args_of_build("all", exclue=exclude_ops)
