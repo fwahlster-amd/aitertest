@@ -1,4 +1,5 @@
-FROM rocm/dev-ubuntu-24.04
+#FROM rocm/dev-ubuntu-24.04 this is missing rocThrust/thrust library
+FROM rocm/pytorch:latest
 
 # Create non-root user for security
 # RUN useradd -m -u 2000 aiter
@@ -27,9 +28,10 @@ RUN git config --global --add safe.directory /workspace/aiter
 
 # missing from requirements.txt
 #RUN pip install torch --index-url https://download.pytorch.org/whl/rocm6.0
-RUN pip install torch --index-url https://download.pytorch.org/whl/nightly/rocm6.4
+#RUN pip install torch --index-url https://download.pytorch.org/whl/nightly/rocm6.4
 RUN pip install packaging
-RUN pip install pyyaml 
+RUN pip install pyyaml
+RUN pip install setuptools
 #RUN pip install psutil
 
 # Switch to non-root user
