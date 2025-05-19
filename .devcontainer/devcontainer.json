@@ -14,7 +14,8 @@
 		"--device=/dev/dri",
 		"--security-opt", "seccomp=unconfined",
 		"--group-add", "video",
-		"--ipc=host"
+		"--ipc=host",
+		"--cap-add=SYS_PTRACE" // https://github.com/Microsoft/MIEngine/wiki/Troubleshoot-attaching-to-processes-using-GDB
 	],
 	// https://stackoverflow.com/questions/77293917/how-to-mount-source-code-in-a-devcontainer-at-build-time
 	//"onCreateCommand": "cd aiter && python3 setup.py develop", 
@@ -26,7 +27,8 @@
 				"ms-vscode-remote.vscode-remote-extensionpack",
 				"ms-vscode.cpptools-extension-pack",
 				"ms-python.python",
-				"ms-python.debugpy"
+				"ms-python.debugpy",
+				"benjamin-simmonds.pythoncpp-debug"
 			]
 		}
 	}
