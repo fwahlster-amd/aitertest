@@ -16,8 +16,8 @@ RUN apt-get update && apt-get install -y \
     ninja-build \
     python3-venv
 
-RUN python3 -m venv /opt/aiterenv
-ENV PATH="/opt/aiterenv/bin:$PATH"
+#RUN python3 -m venv /opt/aiterenv
+#ENV PATH="/opt/aiterenv/bin:$PATH"
 
 RUN git config --global --add safe.directory /workspace/aiter
 #RUN git clone --recursive https://github.com/ROCm/aiter.git /workspace/aiter
@@ -27,12 +27,14 @@ RUN git config --global --add safe.directory /workspace/aiter
 #ENV GPU_ARCHS=gfx950
 
 # missing from requirements.txt
-#RUN pip install torch --index-url https://download.pytorch.org/whl/rocm6.0
-#RUN pip install torch --index-url https://download.pytorch.org/whl/nightly/rocm6.4
 RUN pip install packaging
 RUN pip install pyyaml
 RUN pip install setuptools
+RUN pip install wheel
 #RUN pip install psutil
+
+#RUN pip install torch --index-url https://download.pytorch.org/whl/rocm6.0
+#RUN pip install torch --index-url https://download.pytorch.org/whl/nightly/rocm6.4
 
 # Switch to non-root user
 # USER aiter
