@@ -6,26 +6,40 @@ this_dir = os.path.dirname(os.path.abspath(__file__))
 jit_dir = f"{this_dir}/aiter/aiter/jit"
 build_dir = f"{this_dir}/aiter/aiter/jit/build"
 
-if os.path.exists(build_dir) and os.path.isdir(build_dir):
-    try:
-        shutil.rmtree(build_dir)
-    except OSError as e:
-        print("Error: %s - %s." % (e.filename, e.strerror))
+REBUILD_ALL: bool = False
 
-# delete .so files in /aiter/aiter/jit
-if os.path.exists(jit_dir) and os.path.isdir(jit_dir):
-    for file in os.listdir( jit_dir ):
-        if file.endswith(".so"):
-            so_path = os.path.join(jit_dir, file)
-            print(f"removing {so_path}")
-            try:
-                os.remove(so_path)
-            except OSError as e:
-                print("Error: %s - %s." % (e.filename, e.strerror))
+if REBUILD_ALL:
+    if os.path.exists(build_dir) and os.path.isdir(build_dir):
+        try:
+            shutil.rmtree(build_dir)
+        except OSError as e:
+            print("Error: %s - %s." % (e.filename, e.strerror))
 
+    # delete .so files in /aiter/aiter/jit
+    if os.path.exists(jit_dir) and os.path.isdir(jit_dir):
+        for file in os.listdir( jit_dir ):
+            if file.endswith(".so"):
+                so_path = os.path.join(jit_dir, file)
+                print(f"removing {so_path}")
+                try:
+                    os.remove(so_path)
+                except OSError as e:
+                    print("Error: %s - %s." % (e.filename, e.strerror))
 
+os.environ['AITER_REBUILD'] = '1' # AITER_LOG_MORE
+AITER_REBUILD = int(os.environ.get("AITER_REBUILD", "0"))
+
+# JIT_WORKSPACE_DIR need to be set before first call to get_user_jit_dir!
+os.environ['JIT_WORKSPACE_DIR'] = os.path.join(this_dir, "jit_workspace")
 sys.path.insert(0, f"{this_dir}/aiter/aiter")
 from jit import core
+
+user_jit_dir = core.get_user_jit_dir()
+print(f"user_jit_dir: {user_jit_dir}")
+
+if REBUILD_ALL:
+    if os.path.exists(user_jit_dir) and os.path.isdir(user_jit_dir):
+        shutil.rmtree(user_jit_dir)
 
 exclude_ops = ["libmha_fwd", "libmha_bwd"]
 all_opts_args_build = core.get_args_of_build("all", exclue=exclude_ops)
@@ -37,7 +51,7 @@ all_opts_args_build["srcs"] = new_list
 all_opts_args_build["flags_extra_cc"] = ["-O0", "-ggdb3"]
 
 core.build_module(
-    md_name="aiter_",  # module_norm
+    md_name="all",  # module_norm
     srcs=all_opts_args_build["srcs"] + [f"{this_dir}/csrc"],
     flags_extra_cc=all_opts_args_build["flags_extra_cc"]
     + ["-DPREBUILD_KERNELS"],
