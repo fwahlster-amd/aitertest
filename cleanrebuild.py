@@ -10,8 +10,8 @@ build_dir = f"{this_dir}/aiter/aiter/jit/build"
 
 CLEAN_ALL: bool = False
 REBUILD_ALL: bool = False
-REBUILD_INPLACE: bool = False
-DEBUG_CONFIG: bool = False
+REBUILD_INPLACE: bool = True
+DEBUG_CONFIG: bool = True
 
 def delete_libs(jit_folder: str):
     if os.path.exists(jit_folder) and os.path.isdir(jit_folder):
@@ -24,9 +24,8 @@ def delete_libs(jit_folder: str):
                 except OSError as e:
                     print("Error: %s - %s." % (e.filename, e.strerror))
 
-if REBUILD_INPLACE:
-    os.environ['AITER_REBUILD'] = '1'
-    #AITER_REBUILD = int(os.environ.get("AITER_REBUILD", "0"))
+#os.environ['AITER_REBUILD'] = '1'
+#AITER_REBUILD = int(os.environ.get("AITER_REBUILD", "0"))
 
 # JIT_WORKSPACE_DIR need to be set before first call to get_user_jit_dir!
 #os.environ['JIT_WORKSPACE_DIR'] = os.path.join(this_dir, "jit_workspace")
@@ -75,6 +74,10 @@ for ops_name in build_op_names:
         if '-O3' not in flags_extra_cc and '-O3' not in flags_extra_hip:
             flags_extra_cc += ["-O0", "-ggdb3"]
             flags_extra_hip += ["-O0", "-ggdb3"]
+
+    if REBUILD_INPLACE:
+        core.rm_module(md_name=ops_name)
+        core.clear_build(md_name=ops_name)
 
     core.build_module(
         md_name=ops_name, # module_norm
