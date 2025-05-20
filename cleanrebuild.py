@@ -75,3 +75,10 @@ with open( os.path.join(jit_dir,"optCompilerConfig.json" ), "r") as file:
             is_standalone=is_standalone,
             torch_exclude=torch_exclude,
         )
+
+# run test on debug modules
+sys.path.insert(0, f"{this_dir}/aiter/op_tests")
+from op_tests import test_layernorm2d
+from utility import dtypes
+
+test_layernorm2d.test_layernorm2d_fuseAdd(dtypes.bf16, 128, 8192)
