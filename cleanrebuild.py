@@ -8,7 +8,10 @@ jit_dir = f"{this_dir}/aiter/aiter/jit"
 csrc_dir = f"{this_dir}/aiter/csrc"
 build_dir = f"{this_dir}/aiter/aiter/jit/build"
 
+CLEAN_ALL: bool = False
 REBUILD_ALL: bool = False
+REBUILD_INPLACE: bool = False
+DEBUG_CONFIG: bool = False
 
 def delete_libs(jit_folder: str):
     if os.path.exists(jit_folder) and os.path.isdir(jit_folder):
@@ -21,65 +24,73 @@ def delete_libs(jit_folder: str):
                 except OSError as e:
                     print("Error: %s - %s." % (e.filename, e.strerror))
 
-#os.environ['AITER_REBUILD'] = '1' # AITER_LOG_MORE
-#AITER_REBUILD = int(os.environ.get("AITER_REBUILD", "0"))
+if REBUILD_INPLACE:
+    os.environ['AITER_REBUILD'] = '1'
+    #AITER_REBUILD = int(os.environ.get("AITER_REBUILD", "0"))
 
 # JIT_WORKSPACE_DIR need to be set before first call to get_user_jit_dir!
 #os.environ['JIT_WORKSPACE_DIR'] = os.path.join(this_dir, "jit_workspace")
+
+jit_workpace_fir = os.environ.get('JIT_WORKSPACE_DIR', None)
+
 sys.path.insert(0, f"{this_dir}/aiter/aiter")
 from jit import core
-# from jit.utils.cpp_extension import (
-#     BuildExtension,
-#     IS_HIP_EXTENSION,
-# )
 
-# optCompilerConfig.json
 user_jit_dir = core.get_user_jit_dir()
 print(f"user_jit_dir: {user_jit_dir}")
 
-if REBUILD_ALL:
+if CLEAN_ALL:
     # delete .so files in /aiter/aiter/jit
     delete_libs(jit_folder=jit_dir)
 
-    if os.path.exists(user_jit_dir) and os.path.isdir(user_jit_dir):
+    if os.path.exists(user_jit_dir) and os.path.isdir(user_jit_dir) and user_jit_dir != jit_dir:
         shutil.rmtree(user_jit_dir)
+
     if os.path.exists(build_dir) and os.path.isdir(build_dir):
         shutil.rmtree(build_dir)
+    
+os.makedirs(user_jit_dir, exist_ok=True)
+os.makedirs(build_dir, exist_ok=True)
 
-with open( os.path.join(jit_dir,"optCompilerConfig.json" ), "r") as file:
-    data: dict = json.load(file)
-    for ops_name, vals in data.items():
-        args = core.get_args_of_build(ops_name=ops_name)
-        #is_python_module: bool = vals.get("is_python_module", default=False)
-        is_python_module: bool = args["is_python_module"]
-        is_standalone: bool = args["is_standalone"]
-        torch_exclude: bool = args["torch_exclude"]
-        if not is_python_module:
-            continue
+build_op_names: list = ['module_norm']
 
-        # remove pybind, because there are already duplicates in rocm_opt
-        #new_list = [el for el in all_opts_args_build["srcs"] if "pybind.cu" not in el]
-        # replace -O3 with O0
-        flags_extra_cc: list = args["flags_extra_cc"]
-        flags_extra_hip: list = args["flags_extra_hip"]
+if REBUILD_ALL:
+    with open( os.path.join(jit_dir,"optCompilerConfig.json" ), "r") as file:
+        data: dict = json.load(file)
+        build_op_names = data.keys()
 
+for ops_name in build_op_names:
+    args = core.get_args_of_build(ops_name=ops_name)
+    is_python_module: bool = args["is_python_module"]
+    is_standalone: bool = args["is_standalone"]
+    torch_exclude: bool = args["torch_exclude"]
+    if not is_python_module:
+        continue
+
+    # replace -O3 with O0
+    flags_extra_cc: list = args["flags_extra_cc"]
+    flags_extra_hip: list = args["flags_extra_hip"]
+
+    if DEBUG_CONFIG:
         if '-O3' not in flags_extra_cc and '-O3' not in flags_extra_hip:
             flags_extra_cc += ["-O0", "-ggdb3"]
             flags_extra_hip += ["-O0", "-ggdb3"]
 
-        core.build_module(
-            md_name=ops_name, # module_norm
-            srcs=args["srcs"], # + [csrc_dir]
-            flags_extra_cc=flags_extra_cc,
-            flags_extra_hip=flags_extra_hip,
-            blob_gen_cmd=args["blob_gen_cmd"],
-            extra_include=args["extra_include"],
-            extra_ldflags=args["extra_ldflags"],
-            verbose=True,
-            is_python_module=True,
-            is_standalone=is_standalone,
-            torch_exclude=torch_exclude,
-        )
+    core.build_module(
+        md_name=ops_name, # module_norm
+        srcs=args["srcs"], # + [csrc_dir]
+        flags_extra_cc=flags_extra_cc,
+        flags_extra_hip=flags_extra_hip,
+        blob_gen_cmd=args["blob_gen_cmd"],
+        extra_include=args["extra_include"],
+        extra_ldflags=args["extra_ldflags"],
+        verbose=True,
+        is_python_module=True,
+        is_standalone=is_standalone,
+        torch_exclude=torch_exclude,
+    )
+
+    print(f"Builing {ops_name} done!")
 
 # run test on debug modules
 sys.path.insert(0, f"{this_dir}/aiter/op_tests")
