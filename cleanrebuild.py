@@ -10,18 +10,11 @@ build_dir = f"{this_dir}/aiter/aiter/jit/build"
 
 REBUILD_ALL: bool = False
 
-if REBUILD_ALL:
-    if os.path.exists(build_dir) and os.path.isdir(build_dir):
-        try:
-            shutil.rmtree(build_dir)
-        except OSError as e:
-            print("Error: %s - %s." % (e.filename, e.strerror))
-
-    # delete .so files in /aiter/aiter/jit
-    if os.path.exists(jit_dir) and os.path.isdir(jit_dir):
-        for file in os.listdir( jit_dir ):
+def delete_libs(jit_folder: str):
+    if os.path.exists(jit_folder) and os.path.isdir(jit_folder):
+        for file in os.listdir(jit_folder):
             if file.endswith(".so"):
-                so_path = os.path.join(jit_dir, file)
+                so_path = os.path.join(jit_folder, file)
                 print(f"removing {so_path}")
                 try:
                     os.remove(so_path)
@@ -40,15 +33,22 @@ user_jit_dir = core.get_user_jit_dir()
 print(f"user_jit_dir: {user_jit_dir}")
 
 if REBUILD_ALL:
+    # delete .so files in /aiter/aiter/jit
+    delete_libs(jit_folder=jit_dir)
+
     if os.path.exists(user_jit_dir) and os.path.isdir(user_jit_dir):
         shutil.rmtree(user_jit_dir)
+    if os.path.exists(build_dir) and os.path.isdir(build_dir):
+        shutil.rmtree(build_dir)
 
-with open(this_dir + "/optCompilerConfig.json", "r") as file:
+with open( os.path.join(jit_dir,"optCompilerConfig.json" ), "r") as file:
     data: dict = json.load(file)
     for ops_name, vals in data.items():
         args = core.get_args_of_build(ops_name=ops_name)
         #is_python_module: bool = vals.get("is_python_module", default=False)
         is_python_module: bool = args["is_python_module"]
+        is_standalone: bool = args["is_standalone"]
+        torch_exclude: bool = args["torch_exclude"]
         if not is_python_module:
             continue
 
@@ -72,6 +72,6 @@ with open(this_dir + "/optCompilerConfig.json", "r") as file:
             extra_ldflags=None,
             verbose=True,
             is_python_module=True,
-            is_standalone=False,
-            torch_exclude=False,
+            is_standalone=is_standalone,
+            torch_exclude=torch_exclude,
         )
