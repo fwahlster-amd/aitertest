@@ -12,6 +12,7 @@ CLEAN_ALL: bool = False
 REBUILD_ALL: bool = False
 REBUILD_INPLACE: bool = True
 DEBUG_CONFIG: bool = True
+RUN_TEST: bool = False
 
 def delete_libs(jit_folder: str):
     if os.path.exists(jit_folder) and os.path.isdir(jit_folder):
@@ -51,7 +52,8 @@ if CLEAN_ALL:
 os.makedirs(user_jit_dir, exist_ok=True)
 os.makedirs(build_dir, exist_ok=True)
 
-build_op_names: list = ['module_norm']
+# module_norm / CK does not compile with -O0 because the code depends on optimization for validity
+build_op_names: list = ['module_moe_asm', 'module_moe', 'module_moe_ck2stages', 'module_moe_sorting'] # 'module_aiter_enum'
 
 if REBUILD_ALL:
     with open( os.path.join(jit_dir,"optCompilerConfig.json" ), "r") as file:
@@ -66,14 +68,14 @@ for ops_name in build_op_names:
     if not is_python_module:
         continue
 
-    # replace -O3 with O0
+    # replace -O3 with O2
     flags_extra_cc: list = args["flags_extra_cc"]
     flags_extra_hip: list = args["flags_extra_hip"]
 
     if DEBUG_CONFIG:
         if '-O3' not in flags_extra_cc and '-O3' not in flags_extra_hip:
-            flags_extra_cc += ["-O0", "-ggdb3"]
-            flags_extra_hip += ["-O0", "-ggdb3"]
+            flags_extra_cc += ["-O2", "-ggdb3"] 
+            flags_extra_hip += ["-O2", "-ggdb3"]
 
     if REBUILD_INPLACE:
         core.rm_module(md_name=ops_name)
@@ -94,10 +96,15 @@ for ops_name in build_op_names:
     )
 
     print(f"Builing {ops_name} done!")
+    core.get_module(md_name=ops_name) # preload module
 
 # run test on debug modules
 sys.path.insert(0, f"{this_dir}/aiter/op_tests")
-from op_tests import test_layernorm2d
-from utility import dtypes
+#from utility import dtypes
 
-test_layernorm2d.test_layernorm2d_fuseAdd(dtypes.bf16, 128, 8192)
+#from op_tests import test_layernorm2d
+#test_layernorm2d.test_layernorm2d_fuseAdd(dtypes.bf16, 128, 8192)
+
+if RUN_TEST:
+    from op_tests import test_moe
+    print(test_moe.BLOCK_SIZE_M)
