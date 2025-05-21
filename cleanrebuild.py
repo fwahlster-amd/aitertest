@@ -9,10 +9,10 @@ csrc_dir = f"{this_dir}/aiter/csrc"
 build_dir = f"{this_dir}/aiter/aiter/jit/build"
 
 CLEAN_ALL: bool = False
+CLEAN_INPLACE: bool = True
 REBUILD_ALL: bool = False
-REBUILD_INPLACE: bool = True
 DEBUG_CONFIG: bool = True
-RUN_TEST: bool = False
+RUN_TEST: bool = True
 
 def delete_libs(jit_folder: str):
     if os.path.exists(jit_folder) and os.path.isdir(jit_folder):
@@ -53,7 +53,8 @@ os.makedirs(user_jit_dir, exist_ok=True)
 os.makedirs(build_dir, exist_ok=True)
 
 # module_norm / CK does not compile with -O0 because the code depends on optimization for validity
-build_op_names: list = ['module_moe_asm', 'module_moe', 'module_moe_ck2stages', 'module_moe_sorting'] # 'module_aiter_enum'
+# many modules depend on module_aiter_enum, it has to be loaded before so import_module() resolves types on load.
+build_op_names: list = ['module_aiter_enum', 'module_moe_asm', 'module_moe_ck2stages', 'module_moe_sorting', 'module_moe']
 
 if REBUILD_ALL:
     with open( os.path.join(jit_dir,"optCompilerConfig.json" ), "r") as file:
@@ -68,7 +69,7 @@ for ops_name in build_op_names:
     if not is_python_module:
         continue
 
-    # replace -O3 with O2
+    # replace -O3 with -O2
     flags_extra_cc: list = args["flags_extra_cc"]
     flags_extra_hip: list = args["flags_extra_hip"]
 
@@ -77,23 +78,26 @@ for ops_name in build_op_names:
             flags_extra_cc += ["-O2", "-ggdb3"] 
             flags_extra_hip += ["-O2", "-ggdb3"]
 
-    if REBUILD_INPLACE:
+    if CLEAN_INPLACE:
         core.rm_module(md_name=ops_name)
         core.clear_build(md_name=ops_name)
 
-    core.build_module(
-        md_name=ops_name, # module_norm
-        srcs=args["srcs"], # + [csrc_dir]
-        flags_extra_cc=flags_extra_cc,
-        flags_extra_hip=flags_extra_hip,
-        blob_gen_cmd=args["blob_gen_cmd"],
-        extra_include=args["extra_include"],
-        extra_ldflags=args["extra_ldflags"],
-        verbose=True,
-        is_python_module=True,
-        is_standalone=is_standalone,
-        torch_exclude=torch_exclude,
-    )
+    try: 
+        core.build_module(
+            md_name=ops_name,
+            srcs=args["srcs"],
+            flags_extra_cc=flags_extra_cc,
+            flags_extra_hip=flags_extra_hip,
+            blob_gen_cmd=args["blob_gen_cmd"],
+            extra_include=args["extra_include"],
+            extra_ldflags=args["extra_ldflags"],
+            verbose=True,
+            is_python_module=True,
+            is_standalone=is_standalone,
+            torch_exclude=torch_exclude,
+        )
+    except RuntimeError as e:
+        print(e)
 
     print(f"Builing {ops_name} done!")
     core.get_module(md_name=ops_name) # preload module
