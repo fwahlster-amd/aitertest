@@ -100,12 +100,11 @@ for ops_name in build_op_names:
         print(e)
 
     print(f"Builing {ops_name} done!")
-    core.get_module(md_name=ops_name) # preload module
 
 # run test on debug modules
 sys.path.insert(0, f"{this_dir}/aiter/op_tests")
-#from utility import dtypes
 
+#from utility import dtypes
 #from op_tests import test_layernorm2d
 #test_layernorm2d.test_layernorm2d_fuseAdd(dtypes.bf16, 128, 8192)
 
