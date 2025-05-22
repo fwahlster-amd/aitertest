@@ -109,5 +109,12 @@ sys.path.insert(0, f"{this_dir}/aiter/op_tests")
 #test_layernorm2d.test_layernorm2d_fuseAdd(dtypes.bf16, 128, 8192)
 
 if RUN_TEST:
-    from op_tests import test_moe
-    print(test_moe.BLOCK_SIZE_M)
+    import importlib
+    try:
+        tests = importlib.import_module("op_tests")
+        from aiter.op_tests import test_moe        
+        #from tests import test_moe
+        print(test_moe.BLOCK_SIZE_M)
+    except Exception as error:
+        print(error)
+
